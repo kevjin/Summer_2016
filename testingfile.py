@@ -18,7 +18,7 @@ MAX_VERTICAL=480
 rel_up = 479 #relative MAXIMUM values to be changed with every loop, finds max parameters for surface to acqure crop section
 rel_down = 0
 rel_left = 639  #make BIG values because you want to find less than numbers
-rel_right = 0
+rel_right = 0 
 identify_it= False
 def listener():
     # initialize a node called hw2
