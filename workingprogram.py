@@ -12,12 +12,14 @@ import cv2
 import Image as AltImage
 from time import sleep
 import math
-mask = np.zeros((480,640), dtype = "uint8")
+mask = np.zeros((imageHeight,imageWidth), dtype = "uint8")
 #mask=np.full((480,640),255,dtype="uint8")
 runTest=0
 waitTest=1
 textList=[]
 runFinal=0
+imageWidth = 0
+imageHeight = 0
 def listener():
     rospy.init_node("hw4")
     rospy.Subscriber("camera/depth/image", Image, callbackDEPTH)
@@ -29,6 +31,8 @@ def callbackRGB(data):     """ This is a callback which recieves the RGB images 
     global waitTest
     global textList
     global runFinal
+    global imageWidth
+    global imageHeight
 
 
 	# convert ROS Image Format into openCV's IPlImage
@@ -80,17 +84,20 @@ def callbackDEPTH(data): """ This is a callback which recieves the DEPTH map and
     global runTest
     global waitTest
     global runFinal
+    global imageWidth
+    global imageHeight
     bridge=CvBridge()
     # bgr8 is the pixel encoding -- 8 bits per color, organized as blue/green/red
     image = bridge.imgmsg_to_cv2(data)
+    imageHeight, imageWidth = image.shape[:2]
     cv2.imshow("Depth Map Raw", image)
     #sleep(0.3) greater than 5.0 is white has to be greater than .5 or else its black
-    newImage = np.zeros((480, 640, 3), np.uint8)
+    newImage = np.zeros((imageHeight, imageWidth, 3), np.uint8)
     newImage[:]=255
     y=0
     x=0
-    while(y<475):
-	while(x<635):
+    while(y<imageHeight):
+	while(x<imageWidth):
 		if(image[y,x]<5.0 and image[y,x]>0.5):
 			newImage[y,x] = int(image[y,x]*51)
 		elif(image[y,x]>5.0):
