@@ -41,8 +41,8 @@ def callbackRGB(data):     """ This is a callback which recieves the RGB images 
     if(runTest==1):
 	rgb_image = cv2.medianBlur(rgb_image,5)
 	rgb_imageG = cv2.cvtColor( rgb_image, cv2.COLOR_RGB2GRAY ) 
-	th3 = cv2.adaptiveThreshold(rgb_imageG,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\ #adaptive gaussian threshold
-cv2.THRESH_BINARY,11,2) 
+	th3 = cv2.adaptiveThreshold(rgb_imageG,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\ 
+cv2.THRESH_BINARY,11,2) #adaptive gaussion threshold
         cv2.imshow("Mask", mask)
 	cv2.imshow("Final Product", cv2.bitwise_and(th3, th3, mask = mask))
 	cv2.imwrite("filetester.png",cv2.bitwise_and(th3, th3, mask = mask)) #This method converts to the image pytesser needs
