@@ -41,18 +41,18 @@ def callbackRGB(data):     """ This is a callback which recieves the RGB images 
     if(runTest==1):
 	rgb_image = cv2.medianBlur(rgb_image,5)
 	rgb_imageG = cv2.cvtColor( rgb_image, cv2.COLOR_RGB2GRAY ) 
-	th3 = cv2.adaptiveThreshold(rgb_imageG,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+	th3 = cv2.adaptiveThreshold(rgb_imageG,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\ #adaptive gaussian threshold
 cv2.THRESH_BINARY,11,2) 
         cv2.imshow("Mask", mask)
-	#cv2.imshow("Final Product", cv2.bitwise_and(th3, th3, mask = mask))
-	cv2.imwrite("filetester.png",cv2.bitwise_and(th3, th3, mask = mask))
+	cv2.imshow("Final Product", cv2.bitwise_and(th3, th3, mask = mask))
+	cv2.imwrite("filetester.png",cv2.bitwise_and(th3, th3, mask = mask)) #This method converts to the image pytesser needs
 	cv2.imshow("th3", th3)
 	cv2.waitKey(5000)
 	try: 
-		cv_imagepp=AltImage.open('filetester.png') #There are sometimes IOErrors, except maybe?
+		cv_imagepp=AltImage.open('filetester.png') #IOErrors occur if the image doesn't exist
 	except IOError:
 		print "space doesn't meet requirements"
-	waitTest=0
+	waitTest=0 #breaks out of the while loop in the other callback
 	runTest=0
 	print "The text acquired is: " + pytesseract.image_to_string(cv_imagepp)
 	if (pytesseract.image_to_string(cv_imagepp)):
@@ -65,10 +65,10 @@ cv2.THRESH_BINARY,11,2)
 cv2.THRESH_BINARY,11,2)
 	cv2.imwrite("th3.png",th3)
 	try: 
-		tth3=AltImage.open('th3.png') #There are sometimes IOErrors, except maybe?
+		tth3=AltImage.open('th3.png')
 	except IOError:
 		print "space doesn't meet requirements"
-	runFinal=0
+	runFinal=0 #The below is to compare how the program fares without segmenting our image and with
 	print "--------------------------------------------------"
 	print "--------------------------------------------------"
 	print "Without Surfaces: "+pytesseract.image_to_string(tth3)
@@ -86,14 +86,12 @@ def callbackDEPTH(data): """ This is a callback which recieves the DEPTH map and
     global runFinal
     global imageWidth
     global imageHeight
-    bridge=CvBridge()
-    # bgr8 is the pixel encoding -- 8 bits per color, organized as blue/green/red
+    bridge=CvBridge() #This is the bridge to convert to IplImage
     image = bridge.imgmsg_to_cv2(data)
     imageHeight, imageWidth = image.shape[:2]
     cv2.imshow("Depth Map Raw", image)
-    #sleep(0.3) greater than 5.0 is white has to be greater than .5 or else its black
-    newImage = np.zeros((imageHeight, imageWidth, 3), np.uint8)
-    newImage[:]=255
+    newImage = np.zeros((imageHeight, imageWidth, 3), np.uint8) 
+    newImage[:]=255 #The Grayscale Equivalent (Depth) is now being created
     y=0
     x=0
     while(y<imageHeight):
@@ -109,22 +107,22 @@ def callbackDEPTH(data): """ This is a callback which recieves the DEPTH map and
 		x=x+1
 	x=0
 	y=y+1
-    cv2.imshow("ConvertedDepthMap", newImage)
+    cv2.imshow("ConvertedDepthMap", newImage) #This is the Grayscale equivalent
     cv2.waitKey(100)
-    segments = slic(img_as_float(newImage), n_segments = 3, sigma = 5)
+    segments = slic(img_as_float(newImage), n_segments = 3, sigma = 5) #Can change the number of superpixels with n_segments
 
 
     for (i, segVal) in enumerate(np.unique(segments)):
-	# construct a mask for the segment
+	# constructs a mask for the segment
 	mask = np.zeros(image.shape[:2], dtype = "uint8")
 	print "[x] inspecting segment %d" % (i)
 	mask[segments == segVal] = 255
-	sigmaTest = cv2.bitwise_and(newImage, newImage, mask = mask)
+	sigmaTest = cv2.bitwise_and(newImage, newImage, mask = mask) #Running our standard deviation test
 	sigmaTest=cv2.cvtColor(sigmaTest,cv2.COLOR_BGR2GRAY)
         totalMean = 0
         unmaskedArea = 0
         for (x,y), value in np.ndenumerate(sigmaTest):
-    	    if(sigmaTest[x,y]!=0): #we don't want complete black because we know that's our mask
+    	    if(sigmaTest[x,y]!=0): #we don't want a complete 255 black because we know that's our mask
                 totalMean = totalMean + int(sigmaTest[x,y])
 	        unmaskedArea = unmaskedArea +1
 
@@ -132,22 +130,22 @@ def callbackDEPTH(data): """ This is a callback which recieves the DEPTH map and
         print "mean: " + str(mean)
         totalVar = 0
         for (x,y), value in np.ndenumerate(sigmaTest):
-  	    if(sigmaTest[x,y]!=0): #we don't want complete black because we know that's our mask
+  	    if(sigmaTest[x,y]!=0):
                 totalVar = totalVar + math.pow(abs(int(sigmaTest[x,y])-mean),2)
-        sigmaVal = math.sqrt(totalVar/unmaskedArea)
+        sigmaVal = int(math.sqrt(totalVar/unmaskedArea))
         print "SIGMA IS: "+ str(sigmaVal) +" for " + str(i)
 	cv2.imshow("SigmaTest",sigmaTest)
 	cv2.waitKey(5000)
 	sleep(3)
-	if(sigmaVal < 40):
-  		waitTest=1	
+	if(sigmaVal < 40): # If the standard deviation is less than 40, proceed with running superpixels on it
+  		waitTest=1 #This is a switch which allows the other callback to apply the mask to the RGB image	
 		runTest=1
-	while(waitTest==1):
+	while(waitTest==1): #Waits for the other callback to finish running everything with the RGB image
 		print "waiting..."
 		sleep(1)
 	
 	cv2.waitKey(50)
-    runFinal=1
+    runFinal=1 #Run final is running the text recognition on the entire image, without superpixels
     while(runFinal==1):
 	print "waiting for a bit..."
 	sleep(1)
