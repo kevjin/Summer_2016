@@ -1,4 +1,10 @@
 import matplotlib.pyplot as plt
+'''
+Boise State University
+
+Advisor: Dr. Elisa Barney Smith
+Author: Kevin Jin
+'''
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np #For cropping the img
 from sensor_msgs.msg import Image
