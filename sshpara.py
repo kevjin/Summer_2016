@@ -2,7 +2,7 @@ import paramiko
 ssh = paramiko.SSHClient()
 yoloswag=True
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect('1.1.1.2', port=22, username = 'ipschool',password='python')
+ssh.connect('kjin@tavernaweb', port=22, username = 'kjin',password='lunchbot')
 stdin, stdout, stderr = ssh.exec_command('ls')
 while(yoloswag):
 	output = stdout.readlines()
@@ -12,4 +12,4 @@ while(yoloswag):
 		yoloswag=False
 print "this is the real thing we want"
 print output
-#use the os command to execute python go_to_v1.py +" output"
+#use the os command to execute python go_to_.py +" output"
