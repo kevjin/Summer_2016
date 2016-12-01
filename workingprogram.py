@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 '''
-Boise State University
+Boise State University 
 
 Advisor: Dr. Elisa Barney Smith
 Author: Kevin Jin
